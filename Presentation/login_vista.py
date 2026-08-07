@@ -14,7 +14,7 @@ class VentanaLogin(ctk.CTkFrame):
 
         # Construcción de la interfaz
         self.crear_componentes()
-
+        
     def crear_componentes(self):
         # Tarjeta contenedora central
         self.card = ctk.CTkFrame(
@@ -27,7 +27,7 @@ class VentanaLogin(ctk.CTkFrame):
         self.card.pack(fill="both", expand=True, padx=35, pady=35)
 
         # Logo / Icono
-        self.logo_label = ctk.CTkLabel(self.card, text="🛡️", font=("Arial", 45))
+        self.logo_label = ctk.CTkLabel(self.card, text="🚘", font=("Arial", 45), anchor="center")
         self.logo_label.pack(pady=(25, 5))
 
         # Título

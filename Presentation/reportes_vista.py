@@ -1,110 +1,182 @@
 import customtkinter as ctk
 
-
 class VentanaReportes(ctk.CTkFrame):
-    def __init__(self, parent, logica_reportes=None):
+    def __init__(self, parent, registro_logica=None):
         super().__init__(parent, fg_color="transparent")
         self.parent = parent
-        self.logica = logica_reportes
-
-        # Configuración de la cuadrícula principal
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-
-        self.crear_componentes()
-
-    def crear_componentes(self):
-        # --- 1. PANEL SUPERIOR DE FILTROS ---
-        frame_filtros = ctk.CTkFrame(self)
-        frame_filtros.grid(row=0, column=0, padx=20, pady=(20, 10), sticky="ew")
-
-        lbl_titulo = ctk.CTkLabel(
-            frame_filtros,
-            text="Reporte y Consulta de Vehículos",
-            font=ctk.CTkFont(size=18, weight="bold")
-        )
-        lbl_titulo.pack(side="left", padx=15, pady=15)
-
-        lbl_estado = ctk.CTkLabel(frame_filtros, text="Estado:")
-        lbl_estado.pack(side="left", padx=(20, 5), pady=15)
-
-        # 1. Definimos combo_filtro_estado AQUÍ antes de llamar a cargar_tabla_reporte
-        self.combo_filtro_estado = ctk.CTkOptionMenu(
-            frame_filtros,
-            values=["TODOS", "INCAUTADO", "DEPOSITADO", "ENTREGADO"],
-            command=lambda choice: self.cargar_tabla_reporte()
-        )
-        self.combo_filtro_estado.pack(side="left", padx=5, pady=15)
-        self.combo_filtro_estado.set("TODOS")
-
-        btn_refrescar = ctk.CTkButton(
-            frame_filtros,
-            text="Filtrar / Actualizar",
-            command=self.cargar_tabla_reporte
-        )
-        btn_refrescar.pack(side="left", padx=15, pady=15)
-
-        # --- 2. TABLA CON CTKSCROLLABLEFRAME ---
-        self.frame_tabla = ctk.CTkFrame(self)
-        self.frame_tabla.grid(row=1, column=0, padx=20, pady=(0, 20), sticky="nsew")
-        self.frame_tabla.grid_columnconfigure(0, weight=1)
-        self.frame_tabla.grid_rowconfigure(1, weight=1)
-
-        # Encabezados de la tabla
-        frame_encabezados = ctk.CTkFrame(self.frame_tabla, fg_color=("gray85", "gray25"))
-        frame_encabezados.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 5))
+        self.logica = registro_logica
         
-        columnas = ["N° Chasis / Dominio", "Marca", "Modelo", "Tipo", "Estado", "Fecha Ingreso"]
-        for i, col in enumerate(columnas):
-            frame_encabezados.grid_columnconfigure(i, weight=1)
-            lbl_col = ctk.CTkLabel(frame_encabezados, text=col, font=ctk.CTkFont(weight="bold"))
-            lbl_col.grid(row=0, column=i, padx=5, pady=8)
+        self.font_title = ("SF Pro Display", 20, "bold")
+        self.font_subtitle = ("SF Pro Text", 13, "bold")
+        self.font_body = ("SF Pro Text", 12)
+        
+        # # 1. Título
+        self.lbl_titulo = ctk.CTkLabel(self, text="📊 PANEL DE REPORTES E INVENTARIO", font=self.font_title)
+        self.lbl_titulo.pack(pady=(10, 15))
+        
+        # # 2. (Resumen rápido arriba) 
+        self.frame_stats = ctk.CTkFrame(self, fg_color="transparent")
+        self.frame_stats.pack(fill="x", pady=5)
+        
+        self.lbl_total_val = ctk.CTkLabel(self.frame_stats, text="Total: 0", font=self.font_subtitle, text_color="#3A9FBF")
+        self.lbl_total_val.pack(side="left", padx=20)
+        
+        self.lbl_vehiculos_val = ctk.CTkLabel(self.frame_stats, text="Vehículos: 0", font=self.font_subtitle, text_color="#2ECC71")
+        self.lbl_vehiculos_val.pack(side="left", padx=20)
+        
+        self.lbl_motos_val = ctk.CTkLabel(self.frame_stats, text="Motos: 0", font=self.font_subtitle, text_color="#E67E22")
+        self.lbl_motos_val.pack(side="left", padx=20)
+        
+        self.filtrar_vehiculos()
 
-        # Contenedor scrolleable para las filas de datos
-        self.scroll_datos = ctk.CTkScrollableFrame(self.frame_tabla, fg_color="transparent")
-        self.scroll_datos.grid(row=1, column=0, sticky="nsew", padx=10, pady=(0, 10))
-        for i in range(len(columnas)):
-            self.scroll_datos.grid_columnconfigure(i, weight=1)
+    def filtrar_vehiculos(self): # O el nombre que tenga tu función de filtrado
+    # 1. Consultar estadísticas a la base de datos
+        if self.logica and hasattr(self.logica, "obtener_estadisticas_totales"):
+            stats = self.logica.obtener_estadisticas_totales()
+        else:
+            stats = {"total": 0, "vehiculos": 0, "motos": 0}
 
-        # --- 3. CARGAMOS LOS DATOS EN LA TABLA ---
-        self.cargar_tabla_reporte()
+        self.lbl_total_val.configure(text=f"Total: {stats['total']}")
+        self.lbl_vehiculos_val.configure(text=f"Vehículos: {stats['vehiculos']}")
+        self.lbl_motos_val.configure(text=f"Motos: {stats['motos']}")
 
-    def cargar_tabla_reporte(self):
-        # Verificación de seguridad por si el atributo aún no fue instanciado
-        if not hasattr(self, "combo_filtro_estado"):
+        # 3. Buscador
+        self.frame_busqueda = ctk.CTkFrame(self, fg_color="transparent")
+        self.frame_busqueda.pack(fill="x", padx=20, pady=5)
+
+        self.txt_buscar = ctk.CTkEntry(
+            self.frame_busqueda, 
+            placeholder_text="Buscar por Matrícula, Chasis, Marca o Propietario...", 
+            font=self.font_body,
+            height=40,
+            fg_color="#1E1E1E",
+            border_color="#3A3A3A"
+        )
+        self.txt_buscar.pack(side="left", fill="x", expand=True, padx=(0, 12))
+        self.txt_buscar.bind("<Return>", lambda e: self.actualizar_reporte())
+
+        self.btn_buscar = ctk.CTkButton(
+            self.frame_busqueda, 
+            text="🔍 Filtrar", 
+            font=self.font_subtitle,
+            width=120, 
+            height=40, 
+            fg_color="#007AFF",
+            command=self.actualizar_reporte
+        )
+        self.btn_buscar.pack(side="right")
+
+        # 4. Contenedor de datos
+        self.tabla_container = ctk.CTkScrollableFrame(
+            self, 
+            fg_color="#1E1E1E", 
+            corner_radius=12,
+            border_width=1,
+            border_color="#333333"
+        )
+        self.tabla_container.pack(fill="both", expand=True, padx=20, pady=15)
+
+        # Cargar los datos la primera vez
+        self.actualizar_reporte()
+
+    def actualizar_reporte(self):
+        """Limpia el visor, actualiza las métricas y dibuja las tarjetas filtradas."""
+        # A. Limpiar la tabla visual
+        for widget in self.tabla_container.winfo_children():
+            widget.destroy()
+
+        # B. Actualizar tarjetas informativas superiores
+        if self.logica and hasattr(self.logica, "obtener_metricas_resumen"):
+            stats = self.logica.obtener_metricas_resumen()
+            self.lbl_total_val.configure(text=f"📋 Total Incautados: {stats['total_general']}")
+            self.lbl_autos_val.configure(text=f"🚗 Automotores: {stats['total_vehiculos']}")
+            self.lbl_motos_val.configure(text=f"🏍️ Motocicletas: {stats['total_motocicletas']}")
+        
+        # C. Consultar los datos filtrados a la lógica
+        criterio = self.txt_buscar.get()
+        if self.logica and hasattr(self.logica, "buscar_vehiculos"):
+            resultados = self.logica.buscar_vehiculos(criterio)
+        else:
+            resultados = []
+
+        if not resultados:
+            lbl_vacio = ctk.CTkLabel(
+                self.tabla_container, 
+                text="⚠️ No hay registros que coincidan con la búsqueda.", 
+                font=self.font_body,
+                text_color="#8E8E93"
+            )
+            lbl_vacio.pack(pady=40)
             return
 
-        estado_filtrar = self.combo_filtro_estado.get()
+        # D. Pintar las tarjetas de resultados
+        for vehiculo in resultados:
+            # 1. Tarjeta contenedora principal
+            card_item = ctk.CTkFrame(
+                self.tabla_container,
+                fg_color="#262626",
+                corner_radius=8,
+                border_width=1,
+                border_color="#3A3A3A"
+            )
+            card_item.pack(fill="x", padx=10, pady=6)
+            card_item.configure(cursor="hand2") # Cambia el cursor a manito para indicar que es cliqueable
 
-        # Limpiar filas existentes en el marco scrolleable
-        for child in self.scroll_datos.winfo_children():
-            child.destroy()
 
-        # Obtención de registros (desde la lógica o estáticos para pruebas), de momento estaticos, para prueba
-        registros = []
-        if self.logica and hasattr(self.logica, "obtener_vehiculos"):
-            registros = self.logica.obtener_vehiculos(estado_filtrar)
-        else:
-            registros = [
-                ("123456789", "Toyota", "Hilux", "Vehículo", "INCAUTADO", "2026-04-01"),
-                ("987654321", "Kenton", "GTR 150", "Motocicleta", "DEPOSITADO", "2026-04-02"),
-                ("456789123", "Honda", "Civic", "Vehículo", "ENTREGADO", "2026-04-03"),
-            ]
+            info_basica_frame = ctk.CTkFrame(card_item, fg_color="transparent")
+            info_basica_frame.pack(fill="x", padx=12, pady=8)
 
-        # Insertar filas filtradas utilizando componentes nativos de CustomTkinter
-        fila_idx = 0
-        for reg in registros:
-            # Si es "TODOS" o coincide el estado (reg[4])
-            if estado_filtrar == "TODOS" or reg[4] == estado_filtrar:
-                # Fondo alternado para lectura cómoda de filas
-                color_fondo = ("gray90", "gray20") if fila_idx % 2 == 0 else "transparent"
-                
-                row_frame = ctk.CTkFrame(self.scroll_datos, fg_color=color_fondo)
-                row_frame.pack(fill="x", pady=2)
+            tipo_txt = f"【 {vehiculo.get('tipo', 'VEHÍCULO')} 】 - {vehiculo.get('subcategoria', 'N/A')} - ESTADO: {vehiculo.get('estado', 'N/A')}"
+            info_principal = f"{vehiculo.get('marca', 'S/M')} {vehiculo.get('modelo', 'S/M')} – Color: {vehiculo.get('color', 'S/C')}"
+            datos_identificacion = f"Chapa/Matrícula: {vehiculo.get('matricula', 'S/D')}  |  N° de Chasis: {vehiculo.get('chasis', 'S/D')}"
+            propietario = f"Titular: {vehiculo.get('Inscripto a Nombre de', 'Desconocido')} (Documento N°: {vehiculo.get('C_I_N°', 'S/N')})"
+            
 
-                for col_idx, dato in enumerate(reg):
-                    row_frame.grid_columnconfigure(col_idx, weight=1)
-                    lbl_dato = ctk.CTkLabel(row_frame, text=str(dato))
-                    lbl_dato.grid(row=0, column=col_idx, padx=5, pady=5)
+            lbl_tipo = ctk.CTkLabel(info_basica_frame, text=tipo_txt, font=ctk.CTkFont(size=11, weight="bold"), text_color="#3A9FBF")
+            lbl_tipo.pack(anchor="w")
+            
+            lbl_prin = ctk.CTkLabel(info_basica_frame, text=info_principal, font=ctk.CTkFont(size=14, weight="bold"), text_color="#FFFFFF")
+            lbl_prin.pack(anchor="w", pady=(2, 4))
+            
+            lbl_ident = ctk.CTkLabel(info_basica_frame, text=datos_identificacion, font=ctk.CTkFont(size=12), text_color="#2ECC71")
+            lbl_ident.pack(anchor="w")
+            
+            lbl_prop = ctk.CTkLabel(info_basica_frame, text=propietario, font=ctk.CTkFont(size=11), text_color="#AAAAAA")
+            lbl_prop.pack(anchor="w", pady=(2, 0))
 
-                fila_idx += 1
+            # 3. Contenedor Oculto para los detalles técnicos extras
+            detalles_extras_frame = ctk.CTkFrame(card_item, fg_color="#1E1E1E", corner_radius=6)
+            
+            # Añadimos los datos específicos que faltaban
+            extras_txt = (
+                f"• Número de Registro Interno: {vehiculo.get('numero', 'S/N')}\n"
+                f"• Año de Incautación: {vehiculo.get('ano_incautacion') or vehiculo.get('año incautacion') or 'S/D'}\n"
+                f"• Unidad a Cargo: {vehiculo.get('unidad_a_cargo') or vehiculo.get('unidad a cargo') or 'Ninguna'}\n"
+                f"• Observaciones / Ley Aplicada: {vehiculo.get('observacion', 'Sin observaciones escritas.')}"
+            )
+            
+            lbl_extras = ctk.CTkLabel(
+                detalles_extras_frame, 
+                text=extras_txt, 
+                font=ctk.CTkFont(size=12), 
+                text_color="#DDDDDD",
+                justify="left", 
+                anchor="w",
+                wraplength=600 # Evita que el texto largo rompa el diseño
+            )
+            lbl_extras.pack(fill="x", padx=15, pady=10)
+
+            # 4. Función (Expandir / Colapsar)
+            def alternar_tarjeta(event, frame_oculto=detalles_extras_frame):
+                if frame_oculto.winfo_viewable():
+                    frame_oculto.pack_forget() # Si está abierto, lo encoge
+                else:
+                    frame_oculto.pack(fill="x", padx=12, pady=(0, 10)) # Si está cerrado, lo muestra abajo
+
+            # 5. Vinculamos el clic
+            card_item.bind("<Button-1>", alternar_tarjeta)
+            info_basica_frame.bind("<Button-1>", alternar_tarjeta)
+            lbl_tipo.bind("<Button-1>", alternar_tarjeta)
+            lbl_prin.bind("<Button-1>", alternar_tarjeta)
+            lbl_ident.bind("<Button-1>", alternar_tarjeta)
+            lbl_prop.bind("<Button-1>", alternar_tarjeta)

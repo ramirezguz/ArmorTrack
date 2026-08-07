@@ -103,10 +103,63 @@ class MacApp(ctk.CTk):
         print(f"Acción ejecutada en: {seleccion}. Entrada: {texto}")
 
 
-
 if __name__ == "__main__":
     app = MacApp()
     app.mainloop()
 
 
+def mostrar_alerta(parent, titulo, mensaje, tipo="info"):
+    """
+    Crea una ventana emergente flotante con el estilo CustomTkinter de ArmorTrack.
+    
+    :param parent: La ventana o frame desde donde se llama (usualmente 'self')
+    :param titulo: Texto para la barra de título
+    :param mensaje: Mensaje a mostrar al usuario
+    :param tipo: 'success' (verde), 'error' (rojo) o 'info' (azul)
+    """
+    alerta = ctk.CTkToplevel(parent)
+    alerta.title(titulo)
+    alerta.geometry("360x180")
+    alerta.resizable(False, False)
+    
+    # Trucos para que se comporte como una ventana modal real
+    alerta.transient(parent)  # Mantener arriba de la ventana principal
+    alerta.grab_set()         # Bloquear la ventana de atrás hasta cerrar esta
+    
+    # Centrar la alerta respecto al padre (opcional pero recomendado)
+    alerta.update_idletasks()
+    x = parent.winfo_rootx() + (parent.winfo_width() // 2) - (alerta.winfo_width() // 2)
+    y = parent.winfo_rooty() + (parent.winfo_height() // 2) - (alerta.winfo_height() // 2)
+    alerta.geometry(f"+{x}+{y}")
 
+    # Configurar colores e íconos según el tipo de mensaje
+    if tipo == "success":
+        color_borde = "#34C759"  # Verde iOS/Apple
+        icono = "✅"
+    elif tipo == "error":
+        color_borde = "#FF3B30"  # Rojo iOS/Apple
+        icono = "❌"
+    else:
+        color_borde = "#007AFF"  # Azul predeterminado
+        icono = "⚠️"
+
+    # Tarjeta contenedora interna
+    frame = ctk.CTkFrame(alerta, border_width=2, border_color=color_borde, corner_radius=12)
+    frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+    # Componentes de la alerta
+    lbl_icono = ctk.CTkLabel(frame, text=icono, font=("Arial", 28))
+    lbl_icono.pack(pady=(15, 5))
+
+    lbl_msg = ctk.CTkLabel(frame, text=mensaje, font=("SF Pro Text", 12), wraplength=310)
+    lbl_msg.pack(pady=10, padx=10)
+
+    btn_ok = ctk.CTkButton(
+        frame, 
+        text="Entendido", 
+        width=110, 
+        fg_color="#3A3A3C", 
+        hover_color="#48484A",
+        command=alerta.destroy
+    )
+    btn_ok.pack(pady=(5, 15))

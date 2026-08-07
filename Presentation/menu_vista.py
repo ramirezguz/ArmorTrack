@@ -27,7 +27,7 @@ class VentanaMenuPrincipal(ctk.CTkFrame):
         # Título / Logo
         lbl_logo = ctk.CTkLabel(
             self.sidebar, 
-            text="🛡️ ARMORTRACK", 
+            text="🚘" "ARMORTRACK", 
             font=ctk.CTkFont(size=18, weight="bold")
         )
         lbl_logo.grid(row=0, column=0, padx=20, pady=(20, 25))
