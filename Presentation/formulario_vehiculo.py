@@ -76,7 +76,7 @@ class FormularioVehiculo(ctk.CTkFrame):
     def evento_cambio_marca(self, marca_seleccionada):
         """Maneja el comportamiento dinámico al cambiar de Marca."""
         if marca_seleccionada == "OTRO...":
-            # CORREGIDO: Se ubica en una fila intermedia de la izquierda dedicada al campo dinámico
+
             self.txt_otra_marca.grid(row=8, column=0, sticky="ew", padx=20, pady=(0, 15))
             self.txt_otra_marca.focus()
 
@@ -84,7 +84,7 @@ class FormularioVehiculo(ctk.CTkFrame):
             self.combo_modelo.set("OTRO...")
             self.txt_otro_modelo.grid(row=11, column=0, sticky="ew", padx=20, pady=(0, 15))
         else:
-            # CORREGIDO: Cambiado pack_forget por grid_forget
+
             self.txt_otra_marca.grid_forget()
 
             modelos = list(self.datos_marcas_modelos.get(marca_seleccionada, []))
@@ -100,7 +100,7 @@ class FormularioVehiculo(ctk.CTkFrame):
     def evento_cambio_subcategoria(self, subcategoria_seleccionada):
         """Maneja la visibilidad del campo de texto cuando se elige 'OTROS' en subcategoría."""
         if subcategoria_seleccionada == "OTROS" and self.combo_tipo.get() == "VEHÍCULO":
-            # CORREGIDO: Se inserta dinámicamente en la fila 6 de la izquierda
+
             self.txt_otra_subcategoria.grid(row=6, column=0, sticky="ew", padx=20, pady=(0, 15))
             self.txt_otra_subcategoria.focus()
         else:
@@ -109,12 +109,18 @@ class FormularioVehiculo(ctk.CTkFrame):
     def evento_cambio_modelo(self, modelo_seleccionado):
         """Maneja la visibilidad del campo de texto de modelo."""
         if modelo_seleccionado == "OTRO...":
-            # CORREGIDO: Ubicado dinámicamente en la fila 11 de la izquierda
             self.txt_otro_modelo.grid(row=11, column=0, sticky="ew", padx=20, pady=(0, 15))
             self.txt_otro_modelo.focus()
         else:
-            # CORREGIDO: Cambiado pack_forget por grid_forget
             self.txt_otro_modelo.grid_forget()
+
+    def evento_cambio_unidad(self, unidad_seleccionada):
+        """Maneja la visibildiad del campo Unidad."""
+        if unidad_seleccionada == "OTRO...":
+            self.txt_otra_unidad.grid(row=15, column=0, sticky="ew", padx=20, pady=(0, 15))
+            self.txt_otra_unidad.focus()
+        else:
+            self.txt_otra_unidad.grid_forget()
 
     def crear_componentes(self):
         # Título Superior
@@ -275,6 +281,37 @@ class FormularioVehiculo(ctk.CTkFrame):
         )
 
 
+        # ------------ 5. UNIDAD A CARGO ------------
+        lbl_unidad_title = ctk.CTkLabel(self.form_container, text="Unidad a Cargo:", font=self.font_label)
+        lbl_unidad_title.grid(row=12, column=0, sticky="w", padx=20, pady=(10, 5))
+
+        self.combo_unidad = ctk.CTkOptionMenu(
+            self.form_container,
+            values=["UNIDAD 1", "UNIDAD 2", "UNIDAD 3", "UNIDAD 4", "OTRO..."],
+            font=self.font_body,
+            dropdown_font=self.font_body,
+            fg_color="#3A3A3C",
+            button_color="#48484A",
+            button_hover_color="#007AFF",
+            dropdown_fg_color="#2D2D2D",
+            dropdown_hover_color="#007AFF",
+            corner_radius=8,
+            height=36,
+            command=self.evento_cambio_unidad
+        )
+        self.combo_unidad.grid(row=13, column=0, sticky="ew", padx=20, pady=(0, 15))
+
+        # Campo dinámico para Nueva Unidad
+        self.txt_otra_unidad = ctk.CTkEntry(
+            self.form_container,
+            placeholder_text="Escriba Nueva Unidad",
+            font=self.font_body,
+            fg_color="#1E1E1E",
+            border_color="#007AFF",
+            corner_radius=8,
+            height=38
+        )
+
         # ==================== COLUMNA 1 (DERECHA) ====================
         
         # ------------ 6. MATRÍCULA / CHAPA ------------
@@ -365,7 +402,7 @@ class FormularioVehiculo(ctk.CTkFrame):
             command=self.guardar_registro
         )
         # Ocupa ambas columnas para mantenerse abajo y perfectamente centrado
-        self.btn_guardar.grid(row=13, column=0, columnspan=2, pady=30, padx=20, sticky="ew")
+        self.btn_guardar.grid(row=18, column=0, columnspan=2, pady=30, padx=20, sticky="ew")
 
     def obtener_subcategoria_final(self):
         """Retorna la subcategoría seleccionada, la escrita manualmente, o 'N/A'."""
@@ -384,6 +421,14 @@ class FormularioVehiculo(ctk.CTkFrame):
             otra = self.txt_otra_marca.get().strip().upper()
             return otra if otra else "DESCONOCIDO"
         return marca
+
+    def obtener_unidad_final(self):
+        """Retorna la unidad seleccionada o la escrita manualmente."""
+        unidad = self.combo_unidad.get()
+        if unidad == "OTRO...":
+            otra = self.txt_otra_unidad.get().strip().upper()
+            return otra if otra else "DESCONOCIDO"
+        return unidad
 
     def obtener_modelo_final(self):
         """Retorna el modelo seleccionado o el escrito manualmente."""
@@ -405,7 +450,8 @@ class FormularioVehiculo(ctk.CTkFrame):
             "Matricula": self.txt_chapa.get().strip().upper(),
             "chasis": self.txt_chasis.get().strip().upper(),
             "Inscripto a Nombre de": self.txt_inscripto.get().strip(),
-            "C_I_N°": self.txt_documento_num.get().strip()
+            "C_I_N°": self.txt_documento_num.get().strip(),
+            "unidad_a_cargo": self.obtener_unidad_final()
         }
         
         if self.logica and hasattr(self.logica, "registrar_vehiculo"):

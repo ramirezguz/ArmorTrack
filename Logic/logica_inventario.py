@@ -15,8 +15,8 @@ class InventarioLogica:
         sql = """
         INSERT INTO vehiculos (
             estado, tipo, subcategoria, marca, modelo, color, 
-            matricula, chasis, inscripto_nombre, ci_num
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            matricula, chasis, inscripto_nombre, ci_num, unidad_a_cargo
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         try:
             with self._conectar() as conexion:
@@ -31,7 +31,8 @@ class InventarioLogica:
                     datos.get("Matricula"),
                     datos.get("chasis"),
                     datos.get("Inscripto a Nombre de"),
-                    datos.get("C_I_N°")
+                    datos.get("C_I_N°"),
+                    datos.get("unidad_a_cargo")
                 ))
                 conexion.commit()
             return True, "Vehículo registrado correctamente en SQLite."

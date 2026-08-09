@@ -129,7 +129,7 @@ class VentanaReportes(ctk.CTkFrame):
             tipo_txt = f"【 {vehiculo.get('tipo', 'VEHÍCULO')} 】 - {vehiculo.get('subcategoria', 'N/A')} - ESTADO: {vehiculo.get('estado', 'N/A')}"
             info_principal = f"{vehiculo.get('marca', 'S/M')} {vehiculo.get('modelo', 'S/M')} – Color: {vehiculo.get('color', 'S/C')}"
             datos_identificacion = f"Chapa/Matrícula: {vehiculo.get('matricula', 'S/D')}  |  N° de Chasis: {vehiculo.get('chasis', 'S/D')}"
-            propietario = f"Titular: {vehiculo.get('Inscripto a Nombre de', 'Desconocido')} (Documento N°: {vehiculo.get('C_I_N°', 'S/N')})"
+            propietario = f"Titular: {vehiculo.get('inscripto_nombre', 'Desconocido')} (Documento N°: {vehiculo.get('ci_num', 'S/N')})"
             
 
             lbl_tipo = ctk.CTkLabel(info_basica_frame, text=tipo_txt, font=ctk.CTkFont(size=11, weight="bold"), text_color="#3A9FBF")
@@ -151,7 +151,7 @@ class VentanaReportes(ctk.CTkFrame):
             extras_txt = (
                 f"• Número de Registro Interno: {vehiculo.get('numero', 'S/N')}\n"
                 f"• Año de Incautación: {vehiculo.get('ano_incautacion') or vehiculo.get('año incautacion') or 'S/D'}\n"
-                f"• Unidad a Cargo: {vehiculo.get('unidad_a_cargo') or vehiculo.get('unidad a cargo') or 'Ninguna'}\n"
+                f"• Unidad a Cargo: {vehiculo.get('unidad_a_cargo') or vehiculo.get('unidad_a_cargo') or 'Ninguna'}\n"
                 f"• Observaciones / Ley Aplicada: {vehiculo.get('observacion', 'Sin observaciones escritas.')}"
             )
             

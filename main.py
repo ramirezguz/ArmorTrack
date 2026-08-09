@@ -31,8 +31,20 @@ class App(ctk.CTk):
     def mostrar_login(self):
         self.limpiar_pantalla()
         
-        # Ajustamos tamaño para la ventana de login
-        self.geometry("450x550")
+        # Dimensiones de la ventana
+        ancho_ventana = 450
+        alto_ventana = 550
+
+        # Obtener el ancho y alto de la pantalla del usuario
+        ancho_pantalla = self.winfo_screenwidth()
+        alto_pantalla = self.winfo_screenheight()
+
+        # Calcular las coordenadas para centrar la ventana
+        x = (ancho_pantalla // 2) - (ancho_ventana // 2)
+        y = (alto_pantalla // 2) - (alto_ventana // 2)
+
+        # Aplicar la geometría con la posición calculada
+        self.geometry(f"{ancho_ventana}x{alto_ventana}+{x}+{y}")
         self.resizable(False, False)
 
         # Instanciamos el login pasando la función para avanzar al éxito
@@ -42,6 +54,8 @@ class App(ctk.CTk):
             on_login_success=self.mostrar_dashboard
         )
         self.vista_login.pack(fill="both", expand=True)
+
+        
 
     def mostrar_dashboard(self):
         self.limpiar_pantalla()
