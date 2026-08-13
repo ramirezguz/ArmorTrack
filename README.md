@@ -8,6 +8,18 @@ Construido bajo una arquitectura modular, cuenta con una interfaz gráfica intui
 
 ---
 
+## ⚠️ Estado del Proyecto y Próximas Funciones
+
+El sistema se encuentra actualmente en **fase de prueba y desarrollo activo**. Aunque los módulos principales de registro y visualización son completamente funcionales, todavía se están diseñando e implementando características críticas para su despliegue final.
+
+### 🗺️ Mapa de Ruta (Pendientes de Implementación)
+*   **Impresión del Acta de Entrega**: Generación automatizada y exportación de documentos oficiales en formato físico o PDF para la devolución de los bienes.
+*   **Módulo de Registro de Usuarios**: Panel administrativo para dar de alta nuevos operadores y asignar credenciales de forma controlada.
+*   **Edición de Datos Cargados**: Posibilidad de modificar o corregir registros ya guardados en el histórico (con auditoría de roles).
+*   *Y muchas funciones más en planificación para optimizar el entorno operativo de la comisaría.*
+
+---
+
 ## 🏗️ Arquitectura del Sistema
 
 El proyecto sigue una estructura limpia basada en la separación de responsabilidades, dividiendo claramente la interfaz de usuario de la capa lógica y el almacenamiento persistente:
