@@ -6,7 +6,7 @@ class Autenticador:
         self.rol_actual = None
 
     def verificar_credenciales(self, usuario_ingresado, password_ingresado):
-        """Busca en el archivo usuarios.json si las credenciales coinciden."""
+        """Valida las credenciales comparándolas con el archivo usuarios.json."""
         if not usuario_ingresado or not password_ingresado:
             return False, "Por favor, complete todos los campos."
         try:
