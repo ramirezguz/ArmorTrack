@@ -1,7 +1,7 @@
 import customtkinter as ctk
-from Presentation.ventana_login import VentanaLogin
-from Presentation.ventana_menu_principal import VentanaMenuPrincipal
-from Logic.inventario_logica import InventarioLogica
+from Presentation.login_vista import VentanaLogin
+from Presentation.menu_vista import VentanaMenuPrincipal
+from Logic.logica_inventario import InventarioLogica
 
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
