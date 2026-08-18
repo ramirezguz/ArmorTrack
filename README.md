@@ -85,7 +85,7 @@ ArmorTrack/
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone https://github.com/TU_USUARIO/ArmorTrack.git
+git clone https://github.com/ramirezguz/ArmorTrack.git
 cd ArmorTrack
 ```
 
