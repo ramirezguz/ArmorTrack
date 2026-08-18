@@ -15,7 +15,6 @@ class SalidaVehiculoLogica:
         return conn
 
     def buscar_para_entrega(self, criterio: str):
-        """Busca un rodado que se encuentre retenido utilizando matrícula o chasis."""
         try:
             with self._conectar() as conn:
                 cursor = conn.cursor()
@@ -23,16 +22,15 @@ class SalidaVehiculoLogica:
                 query = """
                     SELECT id, tipo, marca, modelo, matricula, chasis, estado 
                     FROM vehiculos_datos 
-                    WHERE (matricula LIKE ? OR chasis LIKE ?) 
-                      AND estado IN ('INCAUTADO', 'DEPOSITADO')
-                    LIMIT 1
+                    WHERE (UPPER(matricula) LIKE ? OR UPPER(chasis) LIKE ?) 
+                    AND estado IN ('INCAUTADO', 'DEPOSITADO')
                 """
                 cursor.execute(query, (term, term))
-                res = cursor.fetchone()
-                return dict(res) if res else None
+                filas = cursor.fetchall()
+                return [dict(f) for f in filas] if filas else []
         except Exception as e:
-            print(f"[ERROR SALIDA BUSQUEDA]: {e}")
-            return None
+            print(f"[ERROR BUSQUEDA]: {e}")
+            return []
 
     def procesar_egreso(self, vehiculo_id: int, datos: dict):
         """Modifica el estado del vehículo a ENTREGADO y concatena el historial del oficio."""
